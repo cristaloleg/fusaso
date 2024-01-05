@@ -1,0 +1,27 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+ 
+  build:
+    cmds:
+      - go build -o fusaso main.go
+
+  run:
+    cmds:
+      - task: build
+      - ./fusaso
+
+  fuzz:
+    cmds:
+      - go test -v -run=^$ -fuzz=FuzzSolve solve_test.g
+
+  solve:
+    cmds:
+      - task: build
+      - ./fusaso -run

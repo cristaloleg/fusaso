@@ -1,0 +1,42 @@
+//go:build ignore
+package tofuzz
+
+import (
+	"strings"
+	"testing"
+)
+
+var variables int = {{ .Variables }}
+
+func FuzzSolve(f *testing.F) {
+	f.Add(strings.Repeat("0", variables))
+	f.Add(strings.Repeat("1", variables))
+
+	f.Fuzz(func(t *testing.T, s string) {
+		switch {
+		case len(s) != variables:
+			return
+		case !isValid(s):
+			return
+		case check(s):
+			t.Fatalf("solution: %s", s)
+		}
+	})
+}
+
+func isValid(s string) bool {
+	for _, c := range s {
+		if c != '0' && c != '1' {
+			return false
+		}
+	}
+	return true
+}
+
+func check(x string) bool{
+	switch {
+{{ range .Cases }} {{ "\t" }}case {{ . }}: return false {{ "\n" }}{{ end }}
+	default:
+		return true
+	}
+}
